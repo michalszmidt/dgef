@@ -1,17 +1,15 @@
 ```
-     _             __ 
+     _             __
     | |           / _|
-  __| | __ _  ___| |_ 
+  __| | __ _  ___| |_
  / _` |/ _` |/ _ \  _|
-| (_| | (_| |  __/ |  
- \__,_|\__, |\___|_|  
-        __/ |         
-       |___/          
+| (_| | (_| |  __/ |
+ \__,_|\__, |\___|_|
+        __/ |
+       |___/
 ```
 
-Damn good encoding fixer
-or
-Dead-simple goofy encoding fixer
+Damn good encoding fixer / Dead-simple goofy encoding fixer
 
 <div>
   <img alt="Repo Size" src="https://img.shields.io/github/repo-size/michalszmidt/dgef" />
@@ -43,6 +41,13 @@ Options:
   -l, --lf <lf>              [yes/no] Fix windows-style ending clrf to lf (unix-style line ending)
   -h, --help                 Print help
 ```
+
+# Features
+- [x] detect wncding
+- [x] covert-to encoding
+- [x] crlf encoding replace to lf
+- [x] split to chunks and process parallel
+- [ ] just print-detect encoding
 
 # Magic under the hood
 - chardetect algorithm is: https://github.com/nickspring/charset-normalizer-rs which has no language detection but works as far
