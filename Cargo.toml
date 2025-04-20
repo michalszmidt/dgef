@@ -1,0 +1,18 @@
+[package]
+name = "dgef"
+version = "0.1.0"
+edition = "2024"
+license-file = "LICENSE"
+keywords = ["encoding", "charset", "chardet"]
+categories = ["command-line-utilities"]
+readme = "README.md"
+authors = ["Michał Szmidt"]
+
+[dependencies]
+charset-normalizer-rs = "*"
+itertools = "*"                                  # Apache 2.0 / MIT
+clap = { version = "*", features = ["default"] } # Apache 2.0 / MIT
+rayon = "*"                                      # Apache 2.0 / MIT
+encoding_rs = "*"
+num_cpus = "*"
+# minreq = { version = "*", features = ["https-native"] } # MIT
