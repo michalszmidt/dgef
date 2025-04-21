@@ -1,0 +1,45 @@
+name: Release for Linux musl amd64
+
+on:
+  push:
+    tags:
+      - "*"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  publish_for_linux_musl_amd64:
+    name: Release for Linux musl amd64
+    runs-on: ubuntu-latest
+    container: alpine:edge
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile
+        run: |
+          whoami
+          apk add curl make pkgconf bash build-base openssl openssl-dev openssl-libs-static
+          curl https://sh.rustup.rs -sSf | bash -s -- -y
+          . $HOME/.cargo/env
+          cargo install cargo-auditable cargo-audit
+          uname -a
+          rustc --version
+          cargo auditable build --release --locked
+          cd target/release
+          mv dgef dgef-linux-musl-amd64
+          sha256sum dgef-linux-musl-amd64 > sha256-dgef-linux-musl-amd64
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/dgef-linux-musl-amd64
+          asset_name: dgef-linux-musl-amd64
+          tag: ${{ github.ref }}
+      - name: Upload checksum to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/sha256-dgef-linux-musl-amd64
+          asset_name: sha256-dgef-linux-musl-amd64
+          tag: ${{ github.ref }}

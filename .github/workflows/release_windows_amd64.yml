@@ -1,0 +1,42 @@
+name: Release for Windows amd64
+
+on:
+  push:
+    tags:
+      - "*"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release_for_windows_amd64:
+    name: Release for Windows amd64
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and calculate checksum
+        run: |
+          vcpkg install openssl:x64-windows-static-md
+          vcpkg integrate install
+          rustup update
+          cargo install cargo-auditable cargo-audit
+          rustc --version
+          cargo auditable build --release --locked
+          CD .\target\release
+          dir
+          MOVE .\dgef.exe .\dgef-windows-amd64.exe
+          certutil -hashfile "dgef-windows-amd64.exe" SHA256 | FINDSTR /vbl "SHA256" | FINDSTR /vbl "CertUtil:" > sha256-dgef-windows-amd64.exe.txt
+      - name: Upload binary to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/dgef-windows-amd64.exe
+          asset_name: dgef-windows-amd64.exe
+          tag: ${{ github.ref }}
+      - name: Upload checksum to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/sha256-dgef-windows-amd64.exe.txt
+          asset_name: sha256-dgef-windows-amd64.exe.txt
+          tag: ${{ github.ref }}

@@ -1,0 +1,95 @@
+task:
+  name: LinuxGlibcAarch64
+  only_if: $CIRRUS_BRANCH == 'master' && $CIRRUS_RELEASE != ''
+  env:
+    GITHUB_TOKEN: ENCRYPTED[c55719815e6b9431df4596dc746645ece3acbd2917ffa29c71a1636d232aa77b7a3684b31667de46f028ca594d7a4b20]
+    CARGO_TERM_COLOR: always
+  arm_container:
+    image: archlinux:base-devel
+  prepare_script:
+    - whoami
+    - pacman -Suuy --noconfirm
+    - pacman -Su openssl rustup curl --noconfirm
+    - rustup default stable
+    - cargo install cargo-auditable cargo-audit
+  build_script:
+    - whoami
+    - ls -lah
+    - rustc --version
+    - cargo auditable build --release --locked
+  hash_script:
+    - whoami
+    - ls -lah
+    - cd target/release
+    - mv dgef dgef-linux-glibc-aarch64
+    - sha256sum dgef-linux-glibc-aarch64 > sha256-dgef-linux-glibc-aarch64
+    - mv dgef-linux-glibc-aarch64 ../../ && mv sha256-dgef-linux-glibc-aarch64 ../../
+  upload_script:
+    - whoami
+    - ls -lah
+    - files_to_upload=($(ls | grep dgef)); . ./upload.sh
+
+task:
+  name: LinuxMuslAarch64
+  only_if: $CIRRUS_BRANCH == 'master' && $CIRRUS_RELEASE != ''
+  env:
+    GITHUB_TOKEN: ENCRYPTED[c55719815e6b9431df4596dc746645ece3acbd2917ffa29c71a1636d232aa77b7a3684b31667de46f028ca594d7a4b20]
+    CARGO_TERM_COLOR: always
+  arm_container:
+    image: alpine:edge
+  prepare_script:
+    - apk -U upgrade
+    - apk add curl make pkgconf bash build-base openssl openssl-dev openssl-libs-static
+    - curl https://sh.rustup.rs -sSf | bash -s -- -y
+    - . $HOME/.cargo/env
+    - cargo install cargo-auditable cargo-audit
+  build_script:
+    - whoami
+    - ls -lah
+    - rustc --version
+    - export PATH="$PATH:$HOME/.cargo/bin"
+    - cargo auditable build --release --locked
+  hash_script:
+    - whoami
+    - cd target/release
+    - mv dgef dgef-linux-musl-aarch64
+    - sha256sum dgef-linux-musl-aarch64 > sha256-dgef-linux-musl-aarch64
+    - mv dgef-linux-musl-aarch64 ../../ && mv sha256-dgef-linux-musl-aarch64 ../../
+  upload_script:
+    - whoami
+    - ls -lah
+    - files_to_upload=($(ls | grep dgef)); . ./upload.sh
+
+task:
+  name: MacosxSilicon
+  only_if: $CIRRUS_BRANCH == 'master' && $CIRRUS_RELEASE != ''
+  env:
+    GITHUB_TOKEN: ENCRYPTED[c55719815e6b9431df4596dc746645ece3acbd2917ffa29c71a1636d232aa77b7a3684b31667de46f028ca594d7a4b20]
+    CARGO_TERM_COLOR: always
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-sequoia-base:latest
+  prepare_script:
+    - whoami
+    - NONINTERACTIVE=1 brew update
+    - NONINTERACTIVE=1 brew outdated
+    - NONINTERACTIVE=1 brew upgrade
+    - NONINTERACTIVE=1 brew install pkg-config make curl coreutils openssl@3
+    - curl https://sh.rustup.rs -sSf | bash -s -- -y
+    - . $HOME/.cargo/env
+    - cargo install cargo-auditable cargo-audit
+  build_script:
+    - whoami
+    - . $HOME/.cargo/env
+    - ls -lah
+    - rustc --version
+    - cargo auditable build --release --locked
+  hash_script:
+    - whoami
+    - cd target/release
+    - mv dgef dgef-macosx-silicon
+    - sha256sum dgef-macosx-silicon > sha256-dgef-macosx-silicon
+    - mv dgef-macosx-silicon ../../ && mv sha256-dgef-macosx-silicon ../../
+  upload_script:
+    - whoami
+    - ls -lah
+    - files_to_upload=($(ls | grep dgef)); . ./upload.sh

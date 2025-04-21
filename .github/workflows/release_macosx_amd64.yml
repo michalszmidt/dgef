@@ -1,0 +1,43 @@
+name: Release for MacOS X intel
+
+on:
+  push:
+    tags:
+      - "*"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  publish_for_macosx_amd64:
+    name: Release for MacOS X intel
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile
+        run: |
+          whoami
+          brew install coreutils openssl@3
+          rustup update
+          uname -a
+          rustc --version
+          cargo install cargo-auditable cargo-audit
+          cargo auditable build --release --locked
+          cd target/release
+          mv dgef dgef-macosx-amd64
+          sha256sum dgef-macosx-amd64 > sha256-dgef-macosx-amd64
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/dgef-macosx-amd64
+          asset_name: dgef-macosx-amd64
+          tag: ${{ github.ref }}
+      - name: Upload checksum to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/sha256-dgef-macosx-amd64
+          asset_name: sha256-dgef-macosx-amd64
+          tag: ${{ github.ref }}
